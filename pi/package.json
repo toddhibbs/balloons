@@ -1,0 +1,15 @@
+{
+  "name": "pi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "shutdown.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Todd Hibbs <todd@toddhibbs.com> (http://toddhibbs.com/)",
+  "license": "ISC",
+  "dependencies": {
+    "shelljs": "^0.8.4"
+  }
+}
