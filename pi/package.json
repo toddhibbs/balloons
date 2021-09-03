@@ -10,6 +10,7 @@
   "author": "Todd Hibbs <todd@toddhibbs.com> (http://toddhibbs.com/)",
   "license": "ISC",
   "dependencies": {
+    "bme280-sensor": "^0.1.7",
     "shelljs": "^0.8.4"
   }
 }

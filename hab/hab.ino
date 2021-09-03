@@ -37,7 +37,6 @@ char  Symbol='O'; // '/O' for balloon, '/>' for car, for more info : http://www.
 bool alternateSymbolTable = false ; //false = '/' , true = '\'
 
 char Frequency[9]="144.3900"; //default frequency. 144.3900 for US, 144.8000 for Europe
-char LandedFrequency[9]="145.3900"; // switch to a different frequency when landed
 
 char comment[44] = "https://rainydaylabs.com/hab/"; // Max 44 char
 char StatusMessage[50] = "Project Super High Balloon"; 
@@ -200,6 +199,7 @@ void high_descent_started() {
 
 void low_descent_started() {
   Serial.println('flight-stage-change:' + flight_status);
+  transmit_interval = 4;
 }
 
 void landed_started() {

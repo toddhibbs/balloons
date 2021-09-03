@@ -10,6 +10,11 @@ Periodically takes photos/videos and saves them
 ******************/
 
 const fs = require('fs')
+const process = require('process')
+const shell = require('shelljs')
+
+const BME280 = require('bme280-sensor')
+
 const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 
@@ -31,12 +36,37 @@ parser.on('data', data => {
   }
 })
 
+
+//   pre_launch, - 0
+//   low_ascent, - 1
+//   high_ascent, - 2
+//   high_descent, - 3
+//   low_descent, -4
+//   landed -5
 function flightStageChanged(stage) {
   // TODO: could do something cool if we want
   switch(stage) {
+    case '0':
+      // pre_launch. setup video to record the launch
+      // TODO
+      break;
     case '1':
+      // we are airborn! record another video
       break;
     case '2':
+      // high_ascent. let's alternate video and photos
+      break;
+    case '3':
+      // high_descent. probably just take photos
+      break;
+    case '4':
+      // low_descent. let's record video of the landing!
+      break;
+    case '5':
+      // landed. let's shutdown the raspberry pi
+      shell.exec('sudo shutdown -r')
+      // TODO: gracefully exit our node script somehow instead of just killing the process
+      process.exit()
       break;
   }
 }
@@ -54,3 +84,35 @@ function getArduinoLogFilename() {
 }
 
 
+
+// BME280 sensor logging logic
+
+const bme280 = new BME280()
+// Read BME280 sensor data, repeat
+//
+const readSensorData = () => {
+  bme280.readSensorData()
+    .then((data) => {
+      // temperature_C, pressure_hPa, and humidity are returned by default.
+      // I'll also calculate some unit conversions for display purposes.
+      //
+      data.temperature_F = BME280.convertCelciusToFahrenheit(data.temperature_C);
+      data.pressure_inHg = BME280.convertHectopascalToInchesOfMercury(data.pressure_hPa);
+ 
+      console.log(`data = ${JSON.stringify(data, null, 2)}`);
+      setTimeout(readSensorData, 2000);
+    })
+    .catch((err) => {
+      console.log(`BME280 read error: ${err}`);
+      setTimeout(readSensorData, 2000);
+    });
+}
+
+// Initialize the BME280 sensor
+//
+bme280.init()
+  .then(() => {
+    console.log('BME280 initialization succeeded');
+    readSensorData();
+  })
+  .catch((err) => console.error(`BME280 initialization failed: ${err} `))
