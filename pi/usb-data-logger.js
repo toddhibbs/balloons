@@ -22,11 +22,11 @@ const Readline = require('@serialport/parser-readline')
 const port = new SerialPort('/dev/tty-AMA0')
 const parser = port.pipe(new Readline({ delimeter: '\r\n' }))
 
-const filename = getArduinoLogFilename()
+const arduinoFilename = getArduinoLogFilename()
 
 parser.on('data', data => {
   console.log(data)
-  fs.appendFileSync(filename, data, 'utf-8')
+  fs.appendFileSync(arduinoFilename, data, 'utf-8')
   
   // parse line and if contains flight stage change notification then call function
   // flight-stage-change: landed
@@ -82,8 +82,20 @@ function getArduinoLogFilename() {
   }).filter(n => n !== null).sort()
   return `arduino-${sequences.length > 0 ? sequences[sequences.length] : 0}`
 }
+function getBME280LogFilename() {
+  const files = fs.readdirSync('./bme280-logs')
+  const sequences = files.map(f => {
+    const start = f.lastIndexOf('-') + 1
+    const end = f.indexOf('.')
+    const text = f.slice(start, end)
+    const num = parseInt(text, 10)
+    return isNaN(num) ? null : num
+  }).filter(n => n !== null).sort()
+  return `bme280-${sequences.length > 0 ? sequences[sequences.length] : 0}`
+}
 
 
+const bme280Filename = getBME280LogFilename()
 
 // BME280 sensor logging logic
 const options = {
@@ -101,13 +113,17 @@ const readSensorData = () => {
       //
       data.temperature_F = BME280.convertCelciusToFahrenheit(data.temperature_C);
       data.pressure_inHg = BME280.convertHectopascalToInchesOfMercury(data.pressure_hPa);
- 
-      console.log(`data = ${JSON.stringify(data, null, 2)}`);
-      setTimeout(readSensorData, 2000);
+      data.timestamp = (new Date()).toJSON()
+
+      //console.log(`data = ${JSON.stringify(data, null, 2)}`);
+
+      fs.appendFileSync(bme280Filename, JSON.stringify(data, null, 2))
+
+      setTimeout(readSensorData, 10000);
     })
     .catch((err) => {
       console.log(`BME280 read error: ${err}`);
-      setTimeout(readSensorData, 2000);
+      setTimeout(readSensorData, 10000);
     });
 }
 
