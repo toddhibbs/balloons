@@ -29,7 +29,7 @@ const port = new SerialPort('/dev/tty-AMA0')
 const parser = port.pipe(new Readline({ delimeter: '\r\n' }))
 
 const arduinoFilename = getArduinoLogFilename()
-flightStageChanged('0')
+
 
 parser.on('data', data => {
   console.log(data)
@@ -43,6 +43,15 @@ parser.on('data', data => {
   }
 })
 
+flightStageChanged('0')
+
+//TODO: remove this test code
+setTimeout(flightStageChanged, 6000, '1')
+setTimeout(flightStageChanged, 9000, '2')
+setTimeout(flightStageChanged, 60000, '3')
+setTimeout(flightStageChanged, 63000, '4')
+setTimeout(flightStageChanged, 67000, '5')
+
 
 //   pre_launch, - 0
 //   low_ascent, - 1
@@ -54,35 +63,44 @@ async function flightStageChanged(stage) {
   // TODO: could do something cool if we want
   switch(stage) {
     case '0':
+      console.log('Starting pre_launch')
       // pre_launch. setup video to record the launch after 15 minutes
+      // TODO: don't forge to change this!
+      //setTimeout(startVideo, 900000, `./launch-videos/${getLaunchFilename()}`)
       setTimeout(startVideo, 3000, `./launch-videos/${getLaunchFilename()}`)
-      setTimeout(stopVideo, 10000)
-      setTimeout(startIntervalometer, 12000)
-      setTimeout(stopIntervalometer, 120000)
-      setTimeout(startVideo, 121000, `./landing-videos/${getLandingFilename()}`)
-      setTimeout(stopVideo, 125000)
+      // setTimeout(stopVideo, 10000)
+      // setTimeout(startIntervalometer, 12000)
+      // setTimeout(stopIntervalometer, 120000)
+      // setTimeout(startVideo, 121000, `./landing-videos/${getLandingFilename()}`)
+      // setTimeout(stopVideo, 125000)
       break;
     case '1':
+      console.log('Starting low_ascent')
       // we are airborn! record another video
       break;
     case '2':
+      console.log('Starting high_ascent')
       // high_ascent. let's alternate video and photos
       // turn off video and enable intervalometer
       stopVideo()
       startIntervalometer()
       break;
     case '3':
+      console.log('Starting high_descent')
       // high_descent. probably just take photos
       break;
     case '4':
+      console.log('Starting low_descent')
       // low_descent. let's record video of the landing!
       await stopIntervalometer()
       startVideo()
       break;
     case '5':
+      console.log('landed, shutting down')
       // landed. let's shutdown the raspberry pi
       stopVideo(`./landing-videos/${getLandingFilename()}`)
-      shell.exec('sudo shutdown -h')
+      // TODO: turn this on
+      //shell.exec('sudo shutdown -h')
       // TODO: gracefully exit our node script somehow instead of just killing the process
       process.exit()
       break;
