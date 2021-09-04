@@ -54,8 +54,8 @@ typedef enum {
 _flight_status flight_status = pre_launch;
 
 unsigned long loop_count = 0;
-unsigned int BeaconWait = 5;  //seconds sleep for next beacon (TX).
-unsigned int transmit_interval = 7;
+unsigned int BeaconWait = 3;  //seconds sleep for next beacon (TX).
+unsigned int transmit_interval = 9;
 double prev_flight_altitude = 0.0;
 double initial_flight_altitude = 0.0;
 double low_high_threshold = 5000.0;
@@ -199,12 +199,12 @@ void high_descent_started() {
 
 void low_descent_started() {
   Serial.println('flight-stage-change:' + flight_status);
-  transmit_interval = 4;
+  transmit_interval = 2;
 }
 
 void landed_started() {
   Serial.println('flight-stage-change:' + flight_status);
-  transmit_interval = 4;
+  transmit_interval = 2;
 }
 
 void check_update_flight_status() {
@@ -251,7 +251,7 @@ void check_update_flight_status() {
       }
       break;
     case high_descent:
-      if (altitude < low_high_threshold && prev_flight_altitude < low_high_threshold) {
+      if (altitude < low_high_threshold) {
         flight_status = low_descent;
         low_descent_started();
       }

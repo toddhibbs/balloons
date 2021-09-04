@@ -19,7 +19,7 @@ const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 
 // TODO: is this the correct port?
-const port = new SerialPort('/dev/tty-usbserial1')
+const port = new SerialPort('/dev/tty-AMA0')
 const parser = port.pipe(new Readline({ delimeter: '\r\n' }))
 
 const filename = getArduinoLogFilename()
@@ -86,8 +86,11 @@ function getArduinoLogFilename() {
 
 
 // BME280 sensor logging logic
-
-const bme280 = new BME280()
+const options = {
+  i2cBusNo   : 1, // defaults to 1
+  i2cAddress : BME280.BME280_DEFAULT_I2C_ADDRESS() // defaults to 0x77
+}
+const bme280 = new BME280(options)
 // Read BME280 sensor data, repeat
 //
 const readSensorData = () => {
