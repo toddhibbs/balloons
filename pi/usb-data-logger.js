@@ -15,6 +15,12 @@ const shell = require('shelljs')
 
 const BME280 = require('bme280-sensor')
 
+const {StillCamera, StreamCamera, Codec} = require('pi-camera-connect')
+const stillCamera = new StillCamera()
+const streamCamera = new StreamCamera({
+  codec: Codec.H264
+})
+
 const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 
@@ -23,6 +29,7 @@ const port = new SerialPort('/dev/tty-AMA0')
 const parser = port.pipe(new Readline({ delimeter: '\r\n' }))
 
 const arduinoFilename = getArduinoLogFilename()
+flightStageChanged('0')
 
 parser.on('data', data => {
   console.log(data)
@@ -43,28 +50,34 @@ parser.on('data', data => {
 //   high_descent, - 3
 //   low_descent, -4
 //   landed -5
-function flightStageChanged(stage) {
+async function flightStageChanged(stage) {
   // TODO: could do something cool if we want
   switch(stage) {
     case '0':
-      // pre_launch. setup video to record the launch
-      // TODO
+      // pre_launch. setup video to record the launch after 15 minutes
+      setTimeout(startVideo(`./launch-videos/${getLaunchFilename()}`), 900000)
       break;
     case '1':
       // we are airborn! record another video
       break;
     case '2':
       // high_ascent. let's alternate video and photos
+      // turn off video and enable intervalometer
+      stopVideo()
+      startIntervalometer()
       break;
     case '3':
       // high_descent. probably just take photos
       break;
     case '4':
       // low_descent. let's record video of the landing!
+      await stopIntervalometer()
+      startVideo()
       break;
     case '5':
       // landed. let's shutdown the raspberry pi
-      shell.exec('sudo shutdown -r')
+      stopVideo(`./landing-videos/${getLandingFilename()}`)
+      shell.exec('sudo shutdown -h')
       // TODO: gracefully exit our node script somehow instead of just killing the process
       process.exit()
       break;
@@ -93,7 +106,28 @@ function getBME280LogFilename() {
   }).filter(n => n !== null).sort()
   return `bme280-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.txt`
 }
-
+function getLaunchFilename() {
+  const files = fs.readdirSync('./launch-videos')
+  const sequences = files.map(f => {
+    const start = f.lastIndexOf('-') + 1
+    const end = f.indexOf('.')
+    const text = f.slice(start, end)
+    const num = parseInt(text, 10)
+    return isNaN(num) ? null : num
+  }).filter(n => n !== null).sort()
+  return `launch-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.h264`
+}
+function getLandingFilename() {
+  const files = fs.readdirSync('./landing-videos')
+  const sequences = files.map(f => {
+    const start = f.lastIndexOf('-') + 1
+    const end = f.indexOf('.')
+    const text = f.slice(start, end)
+    const num = parseInt(text, 10)
+    return isNaN(num) ? null : num
+  }).filter(n => n !== null).sort()
+  return `landing-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.h264`
+}
 
 const bme280Filename = getBME280LogFilename()
 
@@ -135,3 +169,33 @@ bme280.init()
     readSensorData();
   })
   .catch((err) => console.error(`BME280 initialization failed: ${err} `))
+
+
+// camera logic
+
+async function startVideo(filePath) {
+  const videoStream = streamCamera.createStream()
+  const writeStream = fs.createWriteStream(filePath)
+  videoStream.pipe(writeStream)
+  await streamCamera.startCapture()
+}
+
+async function stopVideo() {
+  await streamCamera.stopCapture()
+}
+
+let intervalometerActive = true;
+function startIntervalometer() {
+  if (intervalometerActive) {
+    stillCamera.takeImage().then(image => {
+      fs.writeFileSync(`./photos/${Date.now().toString()}.jpg`, image)
+      setTimeout(startIntervalometer, 15000)
+    })
+  }
+}
+
+async function stopIntervalometer() {
+  intervalometerActive = false
+}
+
+
