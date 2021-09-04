@@ -45,12 +45,12 @@ parser.on('data', data => {
 
 flightStageChanged('0')
 
-//TODO: remove this test code
-setTimeout(flightStageChanged, 6000, '1')
-setTimeout(flightStageChanged, 9000, '2')
-setTimeout(flightStageChanged, 60000, '3')
-setTimeout(flightStageChanged, 63000, '4')
-setTimeout(flightStageChanged, 67000, '5')
+// //TODO: remove this test code
+// setTimeout(flightStageChanged, 6000, '1')
+// setTimeout(flightStageChanged, 9000, '2')
+// setTimeout(flightStageChanged, 60000, '3')
+// setTimeout(flightStageChanged, 63000, '4')
+// setTimeout(flightStageChanged, 67000, '5')
 
 
 //   pre_launch, - 0
