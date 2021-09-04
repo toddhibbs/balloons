@@ -50,12 +50,12 @@ parser.on('data', data => {
 //   high_descent, - 3
 //   low_descent, -4
 //   landed -5
-async function flightStageChanged(stage) {
+function flightStageChanged(stage) {
   // TODO: could do something cool if we want
   switch(stage) {
     case '0':
       // pre_launch. setup video to record the launch after 15 minutes
-      setTimeout(startVideo(`./launch-videos/${getLaunchFilename()}`), 900000)
+      setTimeout(startVideo, 900000, `./launch-videos/${getLaunchFilename()}`)
       break;
     case '1':
       // we are airborn! record another video
