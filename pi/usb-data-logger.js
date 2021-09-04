@@ -45,12 +45,12 @@ parser.on('data', data => {
 
 flightStageChanged('0')
 
-// //TODO: remove this test code
-// setTimeout(flightStageChanged, 6000, '1')
-// setTimeout(flightStageChanged, 9000, '2')
-// setTimeout(flightStageChanged, 60000, '3')
-// setTimeout(flightStageChanged, 63000, '4')
-// setTimeout(flightStageChanged, 67000, '5')
+//TODO: remove this test code
+setTimeout(flightStageChanged, 6000, '1')
+setTimeout(flightStageChanged, 9000, '2')
+setTimeout(flightStageChanged, 60000, '3')
+setTimeout(flightStageChanged, 63000, '4')
+setTimeout(flightStageChanged, 67000, '5')
 
 
 //   pre_launch, - 0
@@ -197,16 +197,26 @@ bme280.init()
 // camera logic
 
 async function startVideo(filePath) {
-  console.log('startVideo:', filePath)
-  const videoStream = streamCamera.createStream()
-  const writeStream = fs.createWriteStream(filePath)
-  videoStream.pipe(writeStream)
-  await streamCamera.startCapture()
+  try {
+    console.log('startVideo:', filePath)
+    const videoStream = streamCamera.createStream()
+    const writeStream = fs.createWriteStream(filePath)
+    videoStream.pipe(writeStream)
+    await streamCamera.startCapture()
+  }
+  catch(err) {
+    console.log(err)
+  }
 }
 
 async function stopVideo() {
-  console.log('stopVideo')
-  await streamCamera.stopCapture()
+  try {
+    console.log('stopVideo')
+    await streamCamera.stopCapture()
+  }
+  catch(err) {
+    console.log(err)
+  }
 }
 
 let intervalometerActive = true;
@@ -217,6 +227,7 @@ function startIntervalometer() {
       fs.writeFileSync(`./photos/${Date.now().toString()}.jpg`, image)
       setTimeout(startIntervalometer, 15000)
     })
+    .catch(err => console.log(err))
   }
 }
 
