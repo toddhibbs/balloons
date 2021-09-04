@@ -80,7 +80,7 @@ function getArduinoLogFilename() {
     const num = parseInt(text, 10)
     return isNaN(num) ? null : num
   }).filter(n => n !== null).sort()
-  return `arduino-${sequences.length > 0 ? sequences[sequences.length -1] +1 : 0}.txt`
+  return `arduino-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.txt`
 }
 function getBME280LogFilename() {
   const files = fs.readdirSync('./bme280-logs')
