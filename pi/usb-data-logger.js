@@ -50,7 +50,7 @@ parser.on('data', data => {
 //   high_descent, - 3
 //   low_descent, -4
 //   landed -5
-function flightStageChanged(stage) {
+async function flightStageChanged(stage) {
   // TODO: could do something cool if we want
   switch(stage) {
     case '0':
