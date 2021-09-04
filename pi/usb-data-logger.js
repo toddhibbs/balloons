@@ -55,7 +55,10 @@ function flightStageChanged(stage) {
   switch(stage) {
     case '0':
       // pre_launch. setup video to record the launch after 15 minutes
-      setTimeout(startVideo, 900000, `./launch-videos/${getLaunchFilename()}`)
+      setTimeout(startVideo, 3000, `./launch-videos/${getLaunchFilename()}`)
+      setTimeout(stopVideo, 10000)
+      setTimeout(startIntervalometer, 12000)
+      setTimeout(stopIntervalometer, 120000)
       break;
     case '1':
       // we are airborn! record another video
