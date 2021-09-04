@@ -16,16 +16,12 @@ const shell = require('shelljs')
 const BME280 = require('bme280-sensor')
 
 const {StillCamera, StreamCamera, Codec} = require('pi-camera-connect')
-const stillCamera = new StillCamera()
-const streamCamera = new StreamCamera({
-  codec: Codec.H264
-})
 
 const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 
 // TODO: is this the correct port?
-const port = new SerialPort('/dev/tty-AMA0')
+const port = new SerialPort('/dev/serial0')
 const parser = port.pipe(new Readline({ delimeter: '\r\n' }))
 
 const arduinoFilename = getArduinoLogFilename()
@@ -196,6 +192,10 @@ bme280.init()
 
 // camera logic
 
+let streamCamera = new StreamCamera({
+  codec: Codec.H264
+})
+
 async function startVideo(filePath) {
   try {
     console.log('startVideo:', filePath)
@@ -221,8 +221,9 @@ async function stopVideo() {
 
 let intervalometerActive = true;
 function startIntervalometer() {
-  console.log('startIntervalometer')
   if (intervalometerActive) {
+    console.log('startIntervalometer')
+    const stillCamera = new StillCamera()
     stillCamera.takeImage().then(image => {
       fs.writeFileSync(`./photos/${Date.now().toString()}.jpg`, image)
       setTimeout(startIntervalometer, 15000)
