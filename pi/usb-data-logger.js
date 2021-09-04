@@ -93,12 +93,12 @@ async function flightStageChanged(stage) {
       console.log('Starting low_descent')
       // low_descent. let's record video of the landing!
       await stopIntervalometer()
-      startVideo()
+      startVideo(`./landing-videos/${getLandingFilename()}`)
       break;
     case '5':
       console.log('landed, shutting down')
       // landed. let's shutdown the raspberry pi
-      stopVideo(`./landing-videos/${getLandingFilename()}`)
+      stopVideo()
       // TODO: turn this on
       //shell.exec('sudo shutdown -h')
       // TODO: gracefully exit our node script somehow instead of just killing the process
