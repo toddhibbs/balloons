@@ -59,6 +59,8 @@ async function flightStageChanged(stage) {
       setTimeout(stopVideo, 10000)
       setTimeout(startIntervalometer, 12000)
       setTimeout(stopIntervalometer, 120000)
+      setTimeout(startVideo, 121000, `./landing-videos/${getLandingFilename()}`)
+      setTimeout(stopVideo, 125000)
       break;
     case '1':
       // we are airborn! record another video
@@ -177,6 +179,7 @@ bme280.init()
 // camera logic
 
 async function startVideo(filePath) {
+  console.log('startVideo:', filePath)
   const videoStream = streamCamera.createStream()
   const writeStream = fs.createWriteStream(filePath)
   videoStream.pipe(writeStream)
@@ -184,11 +187,13 @@ async function startVideo(filePath) {
 }
 
 async function stopVideo() {
+  console.log('stopVideo')
   await streamCamera.stopCapture()
 }
 
 let intervalometerActive = true;
 function startIntervalometer() {
+  console.log('startIntervalometer')
   if (intervalometerActive) {
     stillCamera.takeImage().then(image => {
       fs.writeFileSync(`./photos/${Date.now().toString()}.jpg`, image)
@@ -198,6 +203,7 @@ function startIntervalometer() {
 }
 
 async function stopIntervalometer() {
+  console.log('stopIntervalometer')
   intervalometerActive = false
 }
 
