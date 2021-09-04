@@ -60,8 +60,8 @@ async function flightStageChanged(stage) {
       console.log('Starting pre_launch')
       // pre_launch. setup video to record the launch after 15 minutes
       // TODO: don't forge to change this!
-      //setTimeout(startVideo, 900000, `./launch-videos/${getLaunchFilename()}`)
-      setTimeout(startVideo, 3000, `./launch-videos/${getLaunchFilename()}`)
+      setTimeout(startVideo, 900000, `./launch-videos/${getLaunchFilename()}`)
+      //setTimeout(startVideo, 3000, `./launch-videos/${getLaunchFilename()}`)
       break;
     case '1':
       console.log('Starting low_ascent')
@@ -90,8 +90,7 @@ async function flightStageChanged(stage) {
       console.log('landed, shutting down')
       // landed. let's shutdown the raspberry pi
       stopVideo()
-      // TODO: turn this on
-      //shell.exec('sudo shutdown -h')
+      shell.exec('sudo shutdown -h')
       // TODO: gracefully exit our node script somehow instead of just killing the process
       process.exit()
       break;
@@ -221,7 +220,7 @@ function startIntervalometer() {
     const stillCamera = new StillCamera()
     stillCamera.takeImage().then(image => {
       fs.writeFileSync(`./photos/${Date.now().toString()}.jpg`, image)
-      setTimeout(startIntervalometer, 1000)
+      setTimeout(startIntervalometer, 15000)
     })
     .catch(err => console.log(err))
   }
