@@ -45,8 +45,8 @@ flightStageChanged('0')
 setTimeout(flightStageChanged, 6000, '1')
 setTimeout(flightStageChanged, 9000, '2')
 setTimeout(flightStageChanged, 60000, '3')
-setTimeout(flightStageChanged, 63000, '4')
-setTimeout(flightStageChanged, 67000, '5')
+setTimeout(flightStageChanged, 65000, '4')
+setTimeout(flightStageChanged, 70000, '5')
 
 
 //   pre_launch, - 0
@@ -89,6 +89,8 @@ async function flightStageChanged(stage) {
       console.log('Starting low_descent')
       // low_descent. let's record video of the landing!
       await stopIntervalometer()
+      // add some delay here
+      await new Promise(resolve => setTimeout(() => resolve(), 3000))
       startVideo(`./landing-videos/${getLandingFilename()}`)
       break;
     case '5':
