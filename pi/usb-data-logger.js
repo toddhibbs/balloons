@@ -20,12 +20,10 @@ const {StillCamera, StreamCamera, Codec} = require('pi-camera-connect')
 const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 
-// TODO: is this the correct port?
-const port = new SerialPort('/dev/serial0')
+const port = new SerialPort('/dev/ttyACM0')
 const parser = port.pipe(new Readline({ delimeter: '\r\n' }))
 
 const arduinoFilename = getArduinoLogFilename()
-
 
 parser.on('data', data => {
   console.log(data)
@@ -35,18 +33,18 @@ parser.on('data', data => {
   // flight-stage-change: landed
   const controlPhrase = 'flight-stage-change:'
   if (data.indexOf(controlPhrase) > -1) {
-    flightStageChanged(data.slice(flightStageChanged.length, flightStageChanged.length + 1))
+    flightStageChanged(data.slice(controlPhrase.length, controlPhrase.length + 1))
   }
 })
 
 flightStageChanged('0')
 
-//TODO: remove this test code
-setTimeout(flightStageChanged, 6000, '1')
-setTimeout(flightStageChanged, 9000, '2')
-setTimeout(flightStageChanged, 60000, '3')
-setTimeout(flightStageChanged, 65000, '4')
-setTimeout(flightStageChanged, 70000, '5')
+// //TODO: remove this test code
+// setTimeout(flightStageChanged, 6000, '1')
+// setTimeout(flightStageChanged, 9000, '2')
+// setTimeout(flightStageChanged, 60000, '3')
+// setTimeout(flightStageChanged, 65000, '4')
+// setTimeout(flightStageChanged, 70000, '5')
 
 
 //   pre_launch, - 0
@@ -64,11 +62,6 @@ async function flightStageChanged(stage) {
       // TODO: don't forge to change this!
       //setTimeout(startVideo, 900000, `./launch-videos/${getLaunchFilename()}`)
       setTimeout(startVideo, 3000, `./launch-videos/${getLaunchFilename()}`)
-      // setTimeout(stopVideo, 10000)
-      // setTimeout(startIntervalometer, 12000)
-      // setTimeout(stopIntervalometer, 120000)
-      // setTimeout(startVideo, 121000, `./landing-videos/${getLandingFilename()}`)
-      // setTimeout(stopVideo, 125000)
       break;
     case '1':
       console.log('Starting low_ascent')
@@ -228,7 +221,7 @@ function startIntervalometer() {
     const stillCamera = new StillCamera()
     stillCamera.takeImage().then(image => {
       fs.writeFileSync(`./photos/${Date.now().toString()}.jpg`, image)
-      setTimeout(startIntervalometer, 15000)
+      setTimeout(startIntervalometer, 1000)
     })
     .catch(err => console.log(err))
   }
