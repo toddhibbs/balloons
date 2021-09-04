@@ -26,7 +26,7 @@ const arduinoFilename = getArduinoLogFilename()
 
 parser.on('data', data => {
   console.log(data)
-  fs.appendFileSync(arduinoFilename, data, 'utf-8')
+  fs.appendFileSync(`./arduino-logs/${arduinoFilename}`, data, 'utf-8')
   
   // parse line and if contains flight stage change notification then call function
   // flight-stage-change: landed
@@ -117,7 +117,7 @@ const readSensorData = () => {
 
       //console.log(`data = ${JSON.stringify(data, null, 2)}`);
 
-      fs.appendFileSync(bme280Filename, JSON.stringify(data, null, 2))
+      fs.appendFileSync(`./bme280-logs/${bme280Filename}`, JSON.stringify(data, null, 2) + ',')
 
       setTimeout(readSensorData, 10000);
     })
