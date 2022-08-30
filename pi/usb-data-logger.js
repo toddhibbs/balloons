@@ -13,6 +13,12 @@ const fs = require('fs')
 const process = require('process')
 const shell = require('shelljs')
 
+const ARDUINO_LOGS_FOLDER = './arduino-logs'
+const BME_LOGS_FOLDER = './bme280-logs'
+const LAUNCH_VIDEOS_FOLDER = './launch-videos'
+const LANDING_VIDEOS_FOLDER = './landing-videos'
+const PHOTOS_FOLDER = './photos'
+
 const BME280 = require('bme280-sensor')
 
 const {StillCamera, StreamCamera, Codec} = require('pi-camera-connect')
@@ -23,11 +29,13 @@ const Readline = require('@serialport/parser-readline')
 const port = new SerialPort('/dev/ttyACM0')
 const parser = port.pipe(new Readline({ delimeter: '\r\n' }))
 
+ensureFoldersExist();
+
 const arduinoFilename = getArduinoLogFilename()
 
 parser.on('data', data => {
   console.log(data)
-  fs.appendFileSync(`./arduino-logs/${arduinoFilename}`, data, 'utf-8')
+  fs.appendFileSync(`${ARDUINO_LOGS_FOLDER}/${arduinoFilename}`, data, 'utf-8')
   
   // parse line and if contains flight stage change notification then call function
   // flight-stage-change: landed
@@ -60,7 +68,7 @@ async function flightStageChanged(stage) {
       console.log('Starting pre_launch')
       // pre_launch. setup video to record the launch after 15 minutes
       // TODO: don't forge to change this!
-      setTimeout(startVideo, 900000, `./launch-videos/${getLaunchFilename()}`)
+      setTimeout(startVideo, 900000, `${LAUNCH_VIDEOS_FOLDER}/${getLaunchFilename()}`)
       //setTimeout(startVideo, 3000, `./launch-videos/${getLaunchFilename()}`)
       break;
     case '1':
@@ -84,7 +92,7 @@ async function flightStageChanged(stage) {
       await stopIntervalometer()
       // add some delay here
       await new Promise(resolve => setTimeout(() => resolve(), 3000))
-      startVideo(`./landing-videos/${getLandingFilename()}`)
+      startVideo(`${LANDING_VIDEOS_FOLDER}/${getLandingFilename()}`)
       break;
     case '5':
       console.log('landed, shutting down')
@@ -97,8 +105,27 @@ async function flightStageChanged(stage) {
   }
 }
 
+function ensureFoldersExist() {
+  if (!fs.existsSync(ARDUINO_LOGS_FOLDER))
+  {
+    fs.mkdirSync(ARDUINO_LOGS_FOLDER)
+  }
+  if (!fs.existsSync(BME_LOGS_FOLDER))
+  {
+    fs.mkdirSync(BME_LOGS_FOLDER)
+  }
+  if (!fs.existsSync(LAUNCH_VIDEOS_FOLDER))
+  {
+    fs.mkdirSync(LAUNCH_VIDEOS_FOLDER)
+  }
+  if (!fs.existsSync(LANDING_VIDEOS_FOLDER))
+  {
+    fs.mkdirSync(LANDING_VIDEOS_FOLDER)
+  }
+}
+
 function getArduinoLogFilename() {
-  const files = fs.readdirSync('./arduino-logs')
+  const files = fs.readdirSync(ARDUINO_LOGS_FOLDER)
   const sequences = files.map(f => {
     const start = f.lastIndexOf('-') + 1
     const end = f.indexOf('.')
@@ -109,7 +136,7 @@ function getArduinoLogFilename() {
   return `arduino-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.txt`
 }
 function getBME280LogFilename() {
-  const files = fs.readdirSync('./bme280-logs')
+  const files = fs.readdirSync(BME_LOGS_FOLDER)
   const sequences = files.map(f => {
     const start = f.lastIndexOf('-') + 1
     const end = f.indexOf('.')
@@ -120,7 +147,7 @@ function getBME280LogFilename() {
   return `bme280-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.txt`
 }
 function getLaunchFilename() {
-  const files = fs.readdirSync('./launch-videos')
+  const files = fs.readdirSync(LAUNCH_VIDEOS_FOLDER)
   const sequences = files.map(f => {
     const start = f.lastIndexOf('-') + 1
     const end = f.indexOf('.')
@@ -131,7 +158,7 @@ function getLaunchFilename() {
   return `launch-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.h264`
 }
 function getLandingFilename() {
-  const files = fs.readdirSync('./landing-videos')
+  const files = fs.readdirSync(LANDING_VIDEOS_FOLDER)
   const sequences = files.map(f => {
     const start = f.lastIndexOf('-') + 1
     const end = f.indexOf('.')
@@ -164,7 +191,7 @@ const readSensorData = () => {
 
       //console.log(`data = ${JSON.stringify(data, null, 2)}`);
 
-      fs.appendFileSync(`./bme280-logs/${bme280Filename}`, JSON.stringify(data, null, 2) + ',')
+      fs.appendFileSync(`${BME_LOGS_FOLDER}/${bme280Filename}`, JSON.stringify(data, null, 2) + ',')
 
       setTimeout(readSensorData, 10000);
     })
@@ -219,7 +246,7 @@ function startIntervalometer() {
     console.log('startIntervalometer')
     const stillCamera = new StillCamera()
     stillCamera.takeImage().then(image => {
-      fs.writeFileSync(`./photos/${Date.now().toString()}.jpg`, image)
+      fs.writeFileSync(`${PHOTOS_FOLDER}/${Date.now().toString()}.jpg`, image)
       setTimeout(startIntervalometer, 15000)
     })
     .catch(err => console.log(err))
