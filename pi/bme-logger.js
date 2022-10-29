@@ -6,7 +6,7 @@ Periodically reads and logs data from the temp/pressure sensor
 
 const fs = require('fs')
 const BME280 = require('bme280-sensor')
-const BME_LOGS_FOLDER = './bme280-logs'
+const BME_LOGS_FOLDER = './home/pi/balloons/bme280logs'
 const BME_LOG_INTERVAL = 10000; // 10 seconds
 
 if (!fs.existsSync(BME_LOGS_FOLDER))

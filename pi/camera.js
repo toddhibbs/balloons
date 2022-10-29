@@ -6,8 +6,8 @@ Periodically takes photos/videos and saves them
 
 const fs = require('fs')
 const {StillCamera, StreamCamera, Codec} = require('pi-camera-connect')
-const VIDEOS_FOLDER = './videos'
-const PHOTOS_FOLDER = './photos'
+const VIDEOS_FOLDER = './home/pi/balloons/videos'
+const PHOTOS_FOLDER = './home/pi/balloons/photos'
 const PHOTO_INTERVAL = 6000; // 6 seconds when in photo intervalometer mode
 const VIDEO_DURATION = 1000 * 30; // 30 second videos
 const VIDEO_INTERVAL = 1000 * 60 * 5; // video every 5 minutes
