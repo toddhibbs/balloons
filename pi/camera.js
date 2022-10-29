@@ -10,11 +10,10 @@ const log = require('simple-node-logger').createSimpleFileLogger('/home/pi/camer
 const {StillCamera, StreamCamera, Codec} = require('pi-camera-connect')
 const VIDEOS_FOLDER = '/home/pi/videos'
 const PHOTOS_FOLDER = '/home/pi/photos'
-const PHOTO_INTERVAL = 6000; // 6 seconds when in photo intervalometer mode
+const PHOTO_INTERVAL = 8000; // 8 seconds when in photo intervalometer mode
 const VIDEO_DURATION = 1000 * 30; // 30 second videos
-const VIDEO_INTERVAL = 1000 * 60 * 5; // video every 5 minutes
 
-const INTERVALOMETER_COUNT = 50; // 
+const INTERVALOMETER_COUNT = 50;
 
 // make sure folders exist
 if (!fs.existsSync(VIDEOS_FOLDER))
@@ -29,14 +28,15 @@ if (!fs.existsSync(PHOTOS_FOLDER))
 }
 
 let continueLoop = true; // give us a way to exit loop
-let loopCount = 0
+
 async function RunLoop() {
+    let loopCount = 0
     // loop indefinitely
     while (continueLoop) {
         log.info("Starting next loop:", loopCount)
         await TakePhotos()
         await RecordVideo()
-        loopCount += loopCount
+        loopCount++;
     }
 }
 
@@ -49,7 +49,7 @@ async function RecordVideo() {
 
 async function TakePhotos() {
     log.info('Calling TakePhotos')
-    for(let i = 0; i < 30; i++) {
+    for(let i = 0; i < INTERVALOMETER_COUNT; i++) {
         log.info("photo loop count:", i)
         await takePhoto() 
         await new Promise(resolve => setTimeout(() => resolve(), PHOTO_INTERVAL));
