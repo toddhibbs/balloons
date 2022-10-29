@@ -106,7 +106,7 @@ function getVideoFilename() {
         const num = parseInt(text, 10)
         return isNaN(num) ? null : num
     }).filter(n => n !== null).sort()
-    return `video-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.h264`
+    return `${VIDEOS_FOLDER}/video-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.h264`
 }
 
 RunLoop()
