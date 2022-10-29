@@ -25,11 +25,12 @@ if (!fs.existsSync(PHOTOS_FOLDER))
 }
 
 let continueLoop = true; // give us a way to exit loop
-
-// loop indefinitely
-while (continueLoop) {
-    await TakePhotos()
-    await RecordVideo()
+async function RunLoop() {
+    // loop indefinitely
+    while (continueLoop) {
+        await TakePhotos()
+        await RecordVideo()
+    }
 }
 
 async function RecordVideo() {
@@ -114,3 +115,5 @@ function getVideoFilename() {
     }).filter(n => n !== null).sort()
     return `video-${sequences.length > 0 ? sequences[sequences.length - 1] + 1 : 0}.h264`
 }
+
+await RunLoop()
